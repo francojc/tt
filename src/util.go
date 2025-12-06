@@ -2,13 +2,12 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/gdamore/tcell"
 )
@@ -77,7 +76,8 @@ func wordWrap(s string, n int) string {
 }
 
 func init() {
-	rand.Seed(time.Now().Unix())
+	// rand.Seed is no longer needed in Go 1.20+
+	// The math/rand package now auto-initializes with a random seed
 }
 
 func randomText(n int, words []string) string {
@@ -200,7 +200,7 @@ func newTcellColor(s string) (tcell.Color, error) {
 
 func readResource(typ, name string) []byte {
 	if name == "-" {
-		b, err := ioutil.ReadAll(os.Stdin)
+		b, err := io.ReadAll(os.Stdin)
 		if err != nil {
 			panic(err)
 		}
@@ -208,12 +208,12 @@ func readResource(typ, name string) []byte {
 		return b
 	}
 
-	if b, err := ioutil.ReadFile(name); err == nil {
+	if b, err := os.ReadFile(name); err == nil {
 		return b
 	}
 
 	for _, d := range CONFIG_DIRS {
-		if b, err := ioutil.ReadFile(filepath.Join(d, typ, name)); err == nil {
+		if b, err := os.ReadFile(filepath.Join(d, typ, name)); err == nil {
 			return b
 		}
 	}

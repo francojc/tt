@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"runtime"
 	"strconv"
@@ -57,7 +56,7 @@ func NewTyper(scr tcell.Screen, emboldenTypedText bool, fgcol, bgcol, hicol, hic
 	tty, err := os.OpenFile("/dev/tty", os.O_WRONLY, 0)
 	//Will fail on windows, but tt is still mostly usable via tcell
 	if err != nil {
-		tty = ioutil.Discard
+		tty = io.Discard
 	}
 
 	correctStyle := def.Foreground(hicol)

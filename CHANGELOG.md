@@ -1,5 +1,19 @@
+# 0.4.3:
+
+Code modernization and build improvements:
+
+- Removed deprecated io/ioutil package usage (deprecated since Go 1.16)
+- Updated to modern Go stdlib equivalents:
+  - ioutil.ReadAll() → io.ReadAll()
+  - ioutil.ReadFile() → os.ReadFile()
+  - ioutil.WriteFile() → os.WriteFile()
+  - ioutil.Discard → io.Discard
+- Removed unnecessary rand.Seed() call (auto-initialized in Go 1.20+)
+- Added clean target to Makefile
+
 # 0.4.2:
-  Added -notheme, -blockcursor and -bold.
+
+Added -notheme, -blockcursor and -bold.
 
 # 0.4.0:
   Too numerous to list (see the man page)

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -181,10 +181,10 @@ File Mode
                         reset progress on a given file.
 Aesthetics
     -showwpm            Display WPM whilst typing.
-    -theme THEMEFILE    The theme to use. 
-    -w                  The maximum line length in characters. This option is 
-    -notheme            Attempt to use the default terminal theme. 
-                        This may produce odd results depending 
+    -theme THEMEFILE    The theme to use.
+    -w                  The maximum line length in characters. This option is
+    -notheme            Attempt to use the default terminal theme.
+                        This may produce odd results depending
                         on the theme colours.
     -blockcursor        Use the default cursor style.
     -bold               Embolden typed text.
@@ -304,7 +304,7 @@ func main() {
 	}
 
 	if versionFlag {
-		fmt.Fprintf(os.Stderr, "tt version 0.4.2\n")
+		fmt.Fprintf(os.Stderr, "tt version 0.4.3\n")
 		os.Exit(1)
 	}
 
@@ -332,7 +332,7 @@ func main() {
 	case quoteFile != "":
 		testFn = generateQuoteTest(quoteFile)
 	case !isatty.IsTerminal(os.Stdin.Fd()):
-		b, err := ioutil.ReadAll(os.Stdin)
+		b, err := io.ReadAll(os.Stdin)
 		if err != nil {
 			panic(err)
 		}

@@ -5,6 +5,10 @@ PREFIX := $(HOME)/.local
 all:
 	go build -o bin/tt src/*.go
 
+.PHONY: clean
+clean:
+	rm -f bin/tt bin/tt-osx bin/tt.exe bin/tt-linux bin/tt-linux_arm bin/tt-linux_arm64
+
 .PHONY: install
 install:
 	install -d $(DESTDIR)$(PREFIX)/bin
