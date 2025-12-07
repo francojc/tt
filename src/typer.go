@@ -18,6 +18,7 @@ const (
 	TyperPrevious
 	TyperNext
 	TyperResize
+	TyperQuit
 )
 
 type segment struct {
@@ -335,9 +336,13 @@ func (t *typer) start(s string, timeLimit time.Duration, startImmediately bool, 
 
 				return
 			case tcell.KeyEscape:
-				rc = TyperEscape
+				rc = TyperQuit
 
 				return
+		case tcell.KeyTab:
+			rc = TyperEscape
+
+			return
 			case tcell.KeyCtrlL:
 				t.Scr.Sync()
 

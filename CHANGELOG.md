@@ -1,3 +1,27 @@
+# 0.4.4:
+
+Enhanced keyboard shortcuts and CSV functionality:
+
+- **Changed keyboard shortcuts**:
+  - `Esc` now quits the application (previously restarted test)
+  - `Tab` restarts test during active test, starts new test on results screen (previously unused)
+  - `Ctrl-W` deletes previous word during typing (already existed, now documented)
+
+- **Enhanced CSV output** (Breaking change):
+  - `-csv` flag now writes to files instead of stdout
+  - Stats file: `~/.local/share/tt/results/{mode}-stats.csv` (timestamp,wpm,cpm,accuracy)
+  - Errors file: `~/.local/share/tt/results/{mode}-errors.csv` (timestamp,word,error)
+  - Headers automatically added on first write
+  - Supports all test modes: words, quotes, file, stdin
+
+- **Config file support**:
+  - Configuration file: `~/.config/tt/config.json`
+  - Customize CSV output directory with `{"csvdir": "/custom/path"}`
+  - Supports tilde expansion (`~/Documents/stats`)
+  - XDG Base Directory compliant
+
+**Note**: The `-csv` flag behavior change is a breaking change. Users with scripts that relied on stdout output will need to update them.
+
 # 0.4.3:
 
 Code modernization and build improvements:

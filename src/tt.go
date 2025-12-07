@@ -19,6 +19,7 @@ import (
 var scr tcell.Screen
 var csvMode bool
 var jsonMode bool
+var currentTestType string
 
 type result struct {
 	Wpm       int       `json:"wpm"`
@@ -76,9 +77,14 @@ func exit(rc int) {
 
 	if csvMode {
 		for _, r := range results {
-			fmt.Printf("test,%d,%d,%.2f,%d\n", r.Wpm, r.Cpm, r.Accuracy, r.Timestamp)
-			for _, m := range r.Mistakes {
-				fmt.Printf("mistake,%s,%s\n", m.Word, m.Typed)
+			// Write stats to file
+			if err := writeCSVStats(currentTestType, r.Timestamp, r.Wpm, r.Cpm, r.Accuracy); err != nil {
+				fmt.Fprintf(os.Stderr, "Warning: Failed to write stats CSV: %v\n", err)
+			}
+
+			// Write errors to file
+			if err := writeCSVErrors(currentTestType, r.Timestamp, r.Mistakes); err != nil {
+				fmt.Fprintf(os.Stderr, "Warning: Failed to write errors CSV: %v\n", err)
 			}
 		}
 	}
@@ -111,6 +117,8 @@ func showReport(scr tcell.Screen, cpm, wpm int, accuracy float64, attribution st
 
 	for {
 		if key, ok := scr.PollEvent().(*tcell.EventKey); ok && key.Key() == tcell.KeyEscape {
+			exit(0)
+		} else if ok && key.Key() == tcell.KeyTab {
 			return
 		} else if ok && key.Key() == tcell.KeyCtrlC {
 			exit(1)
@@ -200,8 +208,11 @@ Test Parameters
 Scripting
     -oneshot            Automatically exit after a single run.
     -noreport           Don't show a report at the end of a test.
-    -csv                Print the test results to stdout in the form:
-                        [type],[wpm],[cpm],[accuracy],[timestamp].
+    -csv                Write test results to CSV files in configured directory.
+                        Stats: {csvdir}/{mode}-stats.csv (timestamp,wpm,cpm,accuracy)
+                        Errors: {csvdir}/{mode}-errors.csv (timestamp,word,error)
+                        Default dir: ~/.local/share/tt/results
+                        Configure via: ~/.config/tt/config.json
     -json               Print the test output in JSON.
     -raw                Don't reflow STDIN text or show one paragraph at a time.
                         Note that line breaks are determined exclusively by the
@@ -304,7 +315,7 @@ func main() {
 	}
 
 	if versionFlag {
-		fmt.Fprintf(os.Stderr, "tt version 0.4.3\n")
+		fmt.Fprintf(os.Stderr, "tt version 0.4.4\n")
 		os.Exit(1)
 	}
 
@@ -329,8 +340,10 @@ func main() {
 	switch {
 	case wordFile != "":
 		testFn = generateWordTest(wordFile, n, g)
+		currentTestType = "words"
 	case quoteFile != "":
 		testFn = generateQuoteTest(quoteFile)
+		currentTestType = "quotes"
 	case !isatty.IsTerminal(os.Stdin.Fd()):
 		b, err := io.ReadAll(os.Stdin)
 		if err != nil {
@@ -338,11 +351,14 @@ func main() {
 		}
 
 		testFn = generateTestFromData(b, rawMode, multiMode)
+		currentTestType = "stdin"
 	case len(flag.Args()) > 0:
 		path := flag.Args()[0]
 		testFn = generateTestFromFile(path, startParagraph)
+		currentTestType = "file"
 	default:
 		testFn = generateWordTest("1000en", n, g)
+		currentTestType = "words"
 	}
 
 	scr, err = tcell.NewScreen()
@@ -434,6 +450,9 @@ func main() {
 			idx++
 		case TyperSigInt:
 			exit(1)
+
+		case TyperQuit:
+			exit(0)
 
 		case TyperResize:
 			//Resize events restart the test, this shouldn't be a problem in the vast majority of cases
