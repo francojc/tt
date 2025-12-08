@@ -190,7 +190,7 @@ File Mode
 Aesthetics
     -showwpm            Display WPM whilst typing.
     -theme THEMEFILE    The theme to use.
-    -w                  The maximum line length in characters. This option is
+    -w                  The maximum line length in characters.
     -notheme            Attempt to use the default terminal theme.
                         This may produce odd results depending
                         on the theme colours.
