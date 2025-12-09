@@ -342,8 +342,13 @@ func main() {
 		testFn = generateWordTest(wordFile, n, g)
 		currentTestType = "words"
 	case quoteFile != "":
-		testFn = generateQuoteTest(quoteFile)
-		currentTestType = "quotes"
+		if quoteFile == "zen" {
+			testFn = generateZenQuotesTest()
+			currentTestType = "quotes-zen"
+		} else {
+			testFn = generateQuoteTest(quoteFile)
+			currentTestType = "quotes"
+		}
 	case !isatty.IsTerminal(os.Stdin.Fd()):
 		b, err := io.ReadAll(os.Stdin)
 		if err != nil {
