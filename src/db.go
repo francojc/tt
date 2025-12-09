@@ -42,6 +42,12 @@ func init() {
 
 	os.MkdirAll(configDir, 0700)
 	CONFIG_FILE = filepath.Join(configDir, "config.json")
+	YAML_CONFIG_FILE = filepath.Join(configDir, "config.yaml")
+
+	// Ensure YAML config file exists (create with defaults if missing)
+	if err := ensureConfigExists(YAML_CONFIG_FILE); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: Failed to initialize config file: %v\n", err)
+	}
 
 	// Load CSV directory from config, default to data/results
 	RESULTS_DIR = loadCSVDir(data)

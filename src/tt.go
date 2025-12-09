@@ -269,34 +269,43 @@ func main() {
 	var err error
 	var testFn func() []segment
 
-	flag.IntVar(&n, "n", 50, "")
-	flag.IntVar(&g, "g", 1, "")
-	flag.IntVar(&startParagraph, "start", -1, "")
+	// Load config file to set defaults
+	cfg, err := loadConfig(YAML_CONFIG_FILE)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: Failed to load config file: %v\n", err)
+		cfg = &AppConfig{}
+		*cfg = getDefaultConfig()
+	}
 
-	flag.IntVar(&maxLineLen, "w", 80, "")
-	flag.IntVar(&timeout, "t", -1, "")
+	// Set flag defaults from config
+	flag.IntVar(&n, "n", cfg.N, "")
+	flag.IntVar(&g, "g", cfg.G, "")
+	flag.IntVar(&startParagraph, "start", cfg.Start, "")
+
+	flag.IntVar(&maxLineLen, "w", cfg.W, "")
+	flag.IntVar(&timeout, "t", cfg.T, "")
 
 	flag.BoolVar(&versionFlag, "v", false, "")
 
-	flag.StringVar(&wordFile, "words", "", "")
-	flag.StringVar(&quoteFile, "quotes", "", "")
+	flag.StringVar(&wordFile, "words", cfg.Words, "")
+	flag.StringVar(&quoteFile, "quotes", cfg.Quotes, "")
 
-	flag.BoolVar(&showWpm, "showwpm", false, "")
-	flag.BoolVar(&noSkip, "noskip", false, "")
-	flag.BoolVar(&normalCursor, "blockcursor", false, "")
-	flag.BoolVar(&noBackspace, "nobackspace", false, "")
-	flag.BoolVar(&noTheme, "notheme", false, "")
-	flag.BoolVar(&oneShotMode, "oneshot", false, "")
-	flag.BoolVar(&noHighlight, "nohighlight", false, "")
-	flag.BoolVar(&noHighlightCurrent, "highlight2", false, "")
-	flag.BoolVar(&noHighlightNext, "highlight1", false, "")
-	flag.BoolVar(&noReport, "noreport", false, "")
-	flag.BoolVar(&boldFlag, "bold", false, "")
-	flag.BoolVar(&csvMode, "csv", false, "")
-	flag.BoolVar(&jsonMode, "json", false, "")
-	flag.BoolVar(&rawMode, "raw", false, "")
-	flag.BoolVar(&multiMode, "multi", false, "")
-	flag.StringVar(&themeName, "theme", "default", "")
+	flag.BoolVar(&showWpm, "showwpm", cfg.ShowWpm, "")
+	flag.BoolVar(&noSkip, "noskip", cfg.NoSkip, "")
+	flag.BoolVar(&normalCursor, "blockcursor", cfg.BlockCursor, "")
+	flag.BoolVar(&noBackspace, "nobackspace", cfg.NoBackspace, "")
+	flag.BoolVar(&noTheme, "notheme", cfg.NoTheme, "")
+	flag.BoolVar(&oneShotMode, "oneshot", cfg.OneShot, "")
+	flag.BoolVar(&noHighlight, "nohighlight", cfg.NoHighlight, "")
+	flag.BoolVar(&noHighlightCurrent, "highlight2", cfg.Highlight2, "")
+	flag.BoolVar(&noHighlightNext, "highlight1", cfg.Highlight1, "")
+	flag.BoolVar(&noReport, "noreport", cfg.NoReport, "")
+	flag.BoolVar(&boldFlag, "bold", cfg.Bold, "")
+	flag.BoolVar(&csvMode, "csv", cfg.Csv, "")
+	flag.BoolVar(&jsonMode, "json", cfg.Json, "")
+	flag.BoolVar(&rawMode, "raw", cfg.Raw, "")
+	flag.BoolVar(&multiMode, "multi", cfg.Multi, "")
+	flag.StringVar(&themeName, "theme", cfg.Theme, "")
 	flag.StringVar(&listFlag, "list", "", "")
 
 	flag.Usage = func() { os.Stdout.Write([]byte(usage)) }
