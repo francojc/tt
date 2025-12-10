@@ -20,6 +20,7 @@ var scr tcell.Screen
 var csvMode bool
 var jsonMode bool
 var currentTestType string
+var currentTestFile string
 
 type result struct {
 	Wpm       int       `json:"wpm"`
@@ -27,6 +28,7 @@ type result struct {
 	Accuracy  float64   `json:"accuracy"`
 	Timestamp int64     `json:"timestamp"`
 	Mistakes  []mistake `json:"mistakes"`
+	File      string    `json:"file"`
 }
 
 func die(format string, args ...interface{}) {
@@ -78,7 +80,7 @@ func exit(rc int) {
 	if csvMode {
 		for _, r := range results {
 			// Write stats to file
-			if err := writeCSVStats(currentTestType, r.Timestamp, r.Wpm, r.Cpm, r.Accuracy); err != nil {
+			if err := writeCSVStats(currentTestType, r.Timestamp, r.Wpm, r.Cpm, r.Accuracy, r.File); err != nil {
 				fmt.Fprintf(os.Stderr, "Warning: Failed to write stats CSV: %v\n", err)
 			}
 
@@ -172,13 +174,13 @@ func createTyper(scr tcell.Screen, bold bool, themeName string) *typer {
 var usage = `usage: tt [options] [file]
 
 Modes
-    -words  WORDFILE    Specifies the file from which words are randomly
-                        drawn (default: 1000en).
-    -quotes QUOTEFILE   Starts quote mode in which quotes are randomly drawn
-                        from the given file. The file should be JSON encoded and
-                        have the following form:
-
-                        [{"text": "foo", attribution: "bar"}]
+    -words              Start word mode using the default word list from config
+                        (default: 1000en).
+    -wordfile WORDFILE  Override word list with specific file.
+    -quotes             Start quote mode using the default quote file from config.
+    -quotefile QUOTEFILE Override quote file. Use 'zen' for ZenQuotes API.
+                        Quote files should be JSON encoded:
+                        [{"text": "foo", "attribution": "bar"}]
 
 Word Mode
     -n GROUPSZ          Sets the number of words which constitute a group.
@@ -259,6 +261,10 @@ func main() {
 	var listFlag string
 	var wordFile string
 	var quoteFile string
+	var wordsMode bool
+	var quotesMode bool
+	var wordFileOverride string
+	var quoteFileOverride string
 
 	var themeName string
 	var showWpm bool
@@ -287,8 +293,10 @@ func main() {
 
 	flag.BoolVar(&versionFlag, "v", false, "")
 
-	flag.StringVar(&wordFile, "words", cfg.Words, "")
-	flag.StringVar(&quoteFile, "quotes", cfg.Quotes, "")
+	flag.BoolVar(&wordsMode, "words", false, "")
+	flag.StringVar(&wordFileOverride, "wordfile", "", "")
+	flag.BoolVar(&quotesMode, "quotes", false, "")
+	flag.StringVar(&quoteFileOverride, "quotefile", "", "")
 
 	flag.BoolVar(&showWpm, "showwpm", cfg.ShowWpm, "")
 	flag.BoolVar(&noSkip, "noskip", cfg.NoSkip, "")
@@ -314,13 +322,30 @@ func main() {
 	// Detect which mode flags were explicitly provided by the user
 	var wordsExplicit, quotesExplicit bool
 	flag.Visit(func(f *flag.Flag) {
-		if f.Name == "words" {
+		if f.Name == "words" || f.Name == "wordfile" {
 			wordsExplicit = true
 		}
-		if f.Name == "quotes" {
+		if f.Name == "quotes" || f.Name == "quotefile" {
 			quotesExplicit = true
 		}
 	})
+
+	// Resolve actual values with precedence: override > config > hardcoded default
+	if wordFileOverride != "" {
+		wordFile = wordFileOverride
+	} else if wordsExplicit || cfg.Words != "" {
+		wordFile = cfg.Words
+	}
+	if wordFile == "" {
+		wordFile = "1000en" // Hardcoded fallback
+	}
+
+	if quoteFileOverride != "" {
+		quoteFile = quoteFileOverride
+	} else if quotesExplicit || cfg.Quotes != "" {
+		quoteFile = cfg.Quotes
+	}
+	// Note: quoteFile can remain empty (defaults to words mode)
 
 	if listFlag != "" {
 		prefix := listFlag + "/"
@@ -329,6 +354,11 @@ func main() {
 				_, f := filepath.Split(path)
 				fmt.Println(f)
 			}
+		}
+
+		// Special case: 'zen' is API-based, not embedded
+		if listFlag == "quotes" {
+			fmt.Println("zen")
 		}
 
 		os.Exit(0)
@@ -362,14 +392,17 @@ func main() {
 		// User explicitly provided -words flag
 		testFn = generateWordTest(wordFile, n, g)
 		currentTestType = "words"
+		currentTestFile = wordFile
 	case quotesExplicit:
 		// User explicitly provided -quotes flag
 		if quoteFile == "zen" {
 			testFn = generateZenQuotesTest()
-			currentTestType = "quotes-zen"
+			currentTestType = "quotes"
+			currentTestFile = "zen"
 		} else {
 			testFn = generateQuoteTest(quoteFile)
 			currentTestType = "quotes"
+			currentTestFile = quoteFile
 		}
 	case !isatty.IsTerminal(os.Stdin.Fd()):
 		b, err := io.ReadAll(os.Stdin)
@@ -379,24 +412,29 @@ func main() {
 
 		testFn = generateTestFromData(b, rawMode, multiMode)
 		currentTestType = "stdin"
+		currentTestFile = "stdin"
 	case len(flag.Args()) > 0:
 		path := flag.Args()[0]
 		testFn = generateTestFromFile(path, startParagraph)
 		currentTestType = "file"
+		currentTestFile = filepath.Base(path)
 	default:
 		// Use config defaults: check if quotes are configured
 		if quoteFile != "" {
 			if quoteFile == "zen" {
 				testFn = generateZenQuotesTest()
-				currentTestType = "quotes-zen"
+				currentTestType = "quotes"
+				currentTestFile = "zen"
 			} else {
 				testFn = generateQuoteTest(quoteFile)
 				currentTestType = "quotes"
+				currentTestFile = quoteFile
 			}
 		} else {
 			// Fall back to words mode with default
 			testFn = generateWordTest(wordFile, n, g)
 			currentTestType = "words"
+			currentTestFile = wordFile
 		}
 	}
 
@@ -474,7 +512,7 @@ func main() {
 			wpm := cpm / 5
 			accuracy := float64(ncorrect) / float64(nerrs+ncorrect) * 100
 
-			results = append(results, result{wpm, cpm, accuracy, time.Now().Unix(), mistakes})
+			results = append(results, result{wpm, cpm, accuracy, time.Now().Unix(), mistakes, currentTestFile})
 			if !noReport {
 				attribution := ""
 				if len(tests[idx]) == 1 {

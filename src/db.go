@@ -103,7 +103,7 @@ func loadCSVDir(defaultData string) string {
 	return filepath.Join(defaultData, "results")
 }
 
-func writeCSVStats(testType string, timestamp int64, wpm, cpm int, accuracy float64) error {
+func writeCSVStats(testType string, timestamp int64, wpm, cpm int, accuracy float64, file string) error {
 	filename := filepath.Join(RESULTS_DIR, testType+"-stats.csv")
 
 	// Check if file exists to determine if header is needed
@@ -121,13 +121,13 @@ func writeCSVStats(testType string, timestamp int64, wpm, cpm int, accuracy floa
 
 	// Write header if new file
 	if needsHeader {
-		if _, err := fmt.Fprintf(f, "timestamp,wpm,cpm,accuracy\n"); err != nil {
+		if _, err := fmt.Fprintf(f, "timestamp,wpm,cpm,accuracy,file\n"); err != nil {
 			return err
 		}
 	}
 
 	// Write stats row
-	_, err = fmt.Fprintf(f, "%d,%d,%d,%.2f\n", timestamp, wpm, cpm, accuracy)
+	_, err = fmt.Fprintf(f, "%d,%d,%d,%.2f,%s\n", timestamp, wpm, cpm, accuracy, file)
 	return err
 }
 
