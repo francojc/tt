@@ -21,6 +21,7 @@ var csvMode bool
 var jsonMode bool
 var currentTestType string
 var currentTestFile string
+var currentTestN int
 
 type result struct {
 	Wpm       int       `json:"wpm"`
@@ -29,6 +30,7 @@ type result struct {
 	Timestamp int64     `json:"timestamp"`
 	Mistakes  []mistake `json:"mistakes"`
 	File      string    `json:"file"`
+	N         int       `json:"n"`
 }
 
 func die(format string, args ...interface{}) {
@@ -80,7 +82,7 @@ func exit(rc int) {
 	if csvMode {
 		for _, r := range results {
 			// Write stats to file
-			if err := writeCSVStats(currentTestType, r.Timestamp, r.Wpm, r.Cpm, r.Accuracy, r.File); err != nil {
+			if err := writeCSVStats(currentTestType, r.Timestamp, r.Wpm, r.Cpm, r.Accuracy, r.File, r.N); err != nil {
 				fmt.Fprintf(os.Stderr, "Warning: Failed to write stats CSV: %v\n", err)
 			}
 
@@ -347,6 +349,9 @@ func main() {
 	}
 	// Note: quoteFile can remain empty (defaults to words mode)
 
+	// Store the n value for CSV logging (already resolved from flag or config)
+	currentTestN = n
+
 	if listFlag != "" {
 		prefix := listFlag + "/"
 		for path, _ := range packedFiles {
@@ -512,7 +517,7 @@ func main() {
 			wpm := cpm / 5
 			accuracy := float64(ncorrect) / float64(nerrs+ncorrect) * 100
 
-			results = append(results, result{wpm, cpm, accuracy, time.Now().Unix(), mistakes, currentTestFile})
+			results = append(results, result{wpm, cpm, accuracy, time.Now().Unix(), mistakes, currentTestFile, currentTestN})
 			if !noReport {
 				attribution := ""
 				if len(tests[idx]) == 1 {
