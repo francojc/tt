@@ -311,6 +311,17 @@ func main() {
 	flag.Usage = func() { os.Stdout.Write([]byte(usage)) }
 	flag.Parse()
 
+	// Detect which mode flags were explicitly provided by the user
+	var wordsExplicit, quotesExplicit bool
+	flag.Visit(func(f *flag.Flag) {
+		if f.Name == "words" {
+			wordsExplicit = true
+		}
+		if f.Name == "quotes" {
+			quotesExplicit = true
+		}
+	})
+
 	if listFlag != "" {
 		prefix := listFlag + "/"
 		for path, _ := range packedFiles {
@@ -347,10 +358,12 @@ func main() {
 	}
 
 	switch {
-	case wordFile != "":
+	case wordsExplicit:
+		// User explicitly provided -words flag
 		testFn = generateWordTest(wordFile, n, g)
 		currentTestType = "words"
-	case quoteFile != "":
+	case quotesExplicit:
+		// User explicitly provided -quotes flag
 		if quoteFile == "zen" {
 			testFn = generateZenQuotesTest()
 			currentTestType = "quotes-zen"
@@ -371,8 +384,20 @@ func main() {
 		testFn = generateTestFromFile(path, startParagraph)
 		currentTestType = "file"
 	default:
-		testFn = generateWordTest("1000en", n, g)
-		currentTestType = "words"
+		// Use config defaults: check if quotes are configured
+		if quoteFile != "" {
+			if quoteFile == "zen" {
+				testFn = generateZenQuotesTest()
+				currentTestType = "quotes-zen"
+			} else {
+				testFn = generateQuoteTest(quoteFile)
+				currentTestType = "quotes"
+			}
+		} else {
+			// Fall back to words mode with default
+			testFn = generateWordTest(wordFile, n, g)
+			currentTestType = "words"
+		}
 	}
 
 	scr, err = tcell.NewScreen()
