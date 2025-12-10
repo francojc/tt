@@ -331,10 +331,6 @@ func (t *typer) start(s string, timeLimit time.Duration, startImmediately bool, 
 			}
 
 			switch key := ev.Key(); key {
-			case tcell.KeyCtrlC:
-				rc = TyperSigInt
-
-				return
 			case tcell.KeyEscape:
 				rc = TyperQuit
 
@@ -345,14 +341,6 @@ func (t *typer) start(s string, timeLimit time.Duration, startImmediately bool, 
 			return
 			case tcell.KeyCtrlL:
 				t.Scr.Sync()
-
-			case tcell.KeyRight:
-				rc = TyperNext
-				return
-
-			case tcell.KeyLeft:
-				rc = TyperPrevious
-				return
 
 			case tcell.KeyCtrlW:
 				if !t.DisableBackspace {

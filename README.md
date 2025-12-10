@@ -54,10 +54,7 @@ options.
 
 - Pressing `escape` at any point exits the test.
 - Pressing `tab` restarts the current test or starts a new test after completion.
-- `C-c` exits the test.
 - `C-w` deletes the previous word during typing.
-- `right` moves to the next test.
-- `left` moves to the previous test.
 
 ## Examples
 
@@ -73,7 +70,6 @@ conceive of should be possible to implement. Below are some simple examples of
 what can be achieved.
 
  - `shuf -n 40 /usr/share/dict/words|tt`  Produces a test consisting of 40 random words drawn from your system's dictionary.
- - `curl http://api.quotable.io/random|jq '[.text=.content|.attribution=.author]'|tt -quotes -` Produces a test consisting of a random quote.
  - `tt -csv -oneshot` Runs a single test and saves results to `~/.local/share/tt/results/`.
 
 The default behaviour is equivalent to `tt -n 50`.
@@ -127,8 +123,8 @@ noreport: false
 
 ### Custom Themes and Word Lists
 
-Custom themes and word lists can be defined in `~/.tt/themes` and `~/.tt/words`
-and used in conjunction with the `-theme` and `-words` flags. A list of
+Custom themes, word lists, and quotes can be defined in `~/.config/tt/themes`, `~/.config/tt/words`, and `~/.config/tt/quotes`
+and used in conjunction with the `-theme`, `-words`, and `-quotefile` flags. A list of
 preloaded themes and word lists can be found in `words/` and `themes/` and are
 accessible by default using the respective flags.
 

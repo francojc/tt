@@ -195,18 +195,19 @@ Modify to taste.
   not exist, the following directories are searched for a file with the given
   name before falling back to internal resources:
 
-  ~/.tt/words\
-  ~/.tt/themes\
+  ~/.config/tt/words\
+  ~/.config/tt/themes\
+  ~/.config/tt/quotes\
   /etc/tt/words\
-  /etc/tt/themes
+  /etc/tt/themes\
+  /etc/tt/quotes
 
 # KEYS
 
-  **esc: ** Restarts the test\
-  **C-c: ** Terminates tt\
+  **esc: ** Exits the test\
+  **tab: ** Restarts the test or starts new test after completion\
   **C-backspace: ** Deletes the previous word\
-  **right** Move to the next test.\
-  **left** Move to the previous test.
+  **C-w: ** Deletes the previous word during typing
 
 # AUTHOR
 

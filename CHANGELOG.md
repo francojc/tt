@@ -50,6 +50,14 @@ Major configuration and output improvements:
 
 **Note**: This release includes breaking changes that may require users to update their configuration and scripts.
 
+## Additional Cleanup Changes
+- **Removed Ctrl-C exit handling** - Use Esc to exit for consistent behavior
+- **Updated directory structure** - Custom resources now use `~/.config/tt/` (XDG compliant)
+- **Removed non-functional features**:
+  - Left/Right arrow navigation (never worked)
+  - Outdated curl example (now core feature with `-quotefile zen`)
+- **Documentation updates** to reflect current functionality
+
 # 0.4.4:
 
 Enhanced keyboard shortcuts and CSV functionality:
@@ -95,7 +103,7 @@ Added -notheme, -blockcursor and -bold.
   Too numerous to list (see the man page)
 
   Highlights:
-  
+
  - Added -quotes.
  - Added support for navigating between tests via right/left.
  - Now store the user's position within a file if one is specified.

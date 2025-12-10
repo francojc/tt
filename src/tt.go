@@ -124,8 +124,6 @@ func showReport(scr tcell.Screen, cpm, wpm int, accuracy float64, attribution st
 			exit(0)
 		} else if ok && key.Key() == tcell.KeyTab {
 			return
-		} else if ok && key.Key() == tcell.KeyCtrlC {
-			exit(1)
 		}
 	}
 }
