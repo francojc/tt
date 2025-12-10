@@ -6,20 +6,20 @@ A terminal based typing test.
 
 # Installation
 
-## Linux
+## From Source (Recommended)
 
 ```
-sudo curl -L https://github.com/lemnos/tt/releases/download/v0.4.2/tt-linux -o /usr/local/bin/tt && sudo chmod +x /usr/local/bin/tt
-sudo curl -o /usr/share/man/man1/tt.1.gz -L https://github.com/lemnos/tt/releases/download/v0.4.2/tt.1.gz
-```
+# Install dependencies
+# On Debian/Ubuntu:
+sudo apt install golang
 
-## macOS
+# On macOS:
+brew install golang
 
-```
-mkdir -p /usr/local/bin /usr/local/share/man/man1 # Usually created by brew
-
-sudo curl -L https://github.com/lemnos/tt/releases/download/v0.4.2/tt-osx -o /usr/local/bin/tt && sudo chmod +x /usr/local/bin/tt
-sudo curl -o /usr/local/share/man/man1/tt.1.gz -L https://github.com/lemnos/tt/releases/download/v0.4.2/tt.1.gz
+# Clone and build
+git clone https://github.com/lemnos/tt
+cd tt
+make && sudo make install
 ```
 
 ## Uninstall
@@ -28,7 +28,7 @@ sudo curl -o /usr/local/share/man/man1/tt.1.gz -L https://github.com/lemnos/tt/r
 sudo rm /usr/local/bin/tt /usr/share/man/man1/tt.1.gz
 ```
 
-## From source
+## From source (legacy instructions)
 
 ```
 # debian dependencies
@@ -62,6 +62,7 @@ options.
 ## Examples
 
  - `tt -quotes en` Starts quote mode with the builtin quote list 'en'.
+ - `tt -quotefile zen` Starts with a random quote from ZenQuotes API.
  - `tt -n 10 -g 5` produces a test consisting of 50 randomly drawn words in 5 groups of 10 words each.
  - `tt -t 10` starts a timed test lasting 10 seconds.
  - `tt -theme gruvbox` Starts tt with the gruvbox theme.
@@ -81,6 +82,49 @@ See `-help` for an exhaustive list of options.
 
 ## Configuration
 
+### YAML Configuration File
+
+Create a configuration file at `~/.config/tt/config.yaml`:
+
+```yaml
+# tt - Typing Test Configuration
+#
+# This file contains default settings for the tt tool.
+# Command-line flags override these settings.
+
+# Word/Quote Mode
+words: "1000en"
+quotes: ""
+
+# Test Parameters
+n: 50
+g: 1
+start: -1
+w: 80
+t: -1
+
+# Display Options
+theme: "default"
+showwpm: false
+notheme: false
+blockcursor: false
+bold: false
+
+# Behavior Options
+noskip: false
+nobackspace: false
+nohighlight: false
+raw: false
+multi: false
+
+# Output Options
+csv: false
+csvdir: ""  # Custom CSV output directory (optional)
+json: false
+oneshot: false
+noreport: false
+```
+
 ### Custom Themes and Word Lists
 
 Custom themes and word lists can be defined in `~/.tt/themes` and `~/.tt/words`
@@ -92,15 +136,13 @@ accessible by default using the respective flags.
 
 By default, `-csv` writes results to `~/.local/share/tt/results/`:
 
-- Stats: `{mode}-stats.csv` (timestamp, wpm, cpm, accuracy)
+- Stats: `{mode}-stats.csv` (timestamp, wpm, cpm, accuracy, n)
 - Errors: `{mode}-errors.csv` (timestamp, word, error)
 
-To customize the output directory, create `~/.config/tt/config.json`:
+To customize the output directory, add `csvdir` to your `config.yaml`:
 
-```json
-{
-  "csvdir": "~/Documents/typing-stats"
-}
+```yaml
+csvdir: "~/Documents/typing-stats"
 ```
 
 The tilde (`~`) will be expanded to your home directory. Paths can be absolute or relative to your home.

@@ -1,3 +1,55 @@
+# 0.5.0:
+
+Major configuration and output improvements:
+
+## Breaking Changes
+- **Config format changed** from JSON to YAML:
+  - Config file location: `~/.config/tt/config.yaml` (previously config.json)
+  - Existing JSON config files will be ignored
+  - YAML format offers better readability and commenting support
+
+- **Installation method changed**:
+  - Pre-built binaries removed from releases
+  - Users must build from source using Go
+  - Updated installation instructions provided
+
+## New Features
+- **ZenQuotes API integration**:
+  - Use `-quotefile zen` to fetch random quotes from ZenQuotes API
+  - Fallback mechanisms ensure smooth operation
+  - No API key required for basic usage
+
+- **Enhanced CSV logging**:
+  - Added 'n' field to track test group size in CSV stats
+  - Added file tracking to CSV output
+  - CSV format now includes: `timestamp,wpm,cpm,accuracy,file,n`
+
+## Improvements
+- **YAML configuration support**:
+  - All configuration options now supported in YAML
+  - Comments and inline documentation in config file
+  - Automatic config file creation with defaults
+  - XDG Base Directory compliant
+
+- **Flag behavior improvements**:
+  - Better handling of `-words` vs `-wordfile`
+  - Improved `-quotes` vs `-quotefile` distinction
+  - Clearer error messages for invalid combinations
+
+- **CSV file output**:
+  - CSV output now writes to files instead of stdout
+  - Stats file: `~/.local/share/tt/results/{mode}-stats.csv`
+  - Errors file: `~/.local/share/tt/results/{mode}-errors.csv`
+  - Headers automatically added on first write
+
+## Fixes
+- Config defaults now properly applied with correct precedence
+- CSV file headers correctly managed
+- Mode flag handling improved
+- Binary file removed from repository (reduced bloat)
+
+**Note**: This release includes breaking changes that may require users to update their configuration and scripts.
+
 # 0.4.4:
 
 Enhanced keyboard shortcuts and CSV functionality:

@@ -370,7 +370,7 @@ func main() {
 	}
 
 	if versionFlag {
-		fmt.Fprintf(os.Stderr, "tt version 0.4.4\n")
+		fmt.Fprintf(os.Stderr, "tt version 0.5.0\n")
 		os.Exit(1)
 	}
 
