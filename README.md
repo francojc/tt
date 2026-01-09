@@ -76,6 +76,22 @@ The default behaviour is equivalent to `tt -n 50`.
 
 See `-help` for an exhaustive list of options.
 
+## Progress Visualization
+
+Track your typing speed improvement over time with terminal graphs:
+
+```bash
+# Visualize with just filename (looks in results directory)
+tt visualize quotes-stats.csv
+tt visualize words-stats.csv
+
+# Or with full path
+tt visualize ~/.local/share/tt/results/quotes-stats.csv
+```
+
+The visualization shows your min, mean, and max WPM by day over the last 30 days.
+Run tests with the `-csv` flag to generate data for visualization.
+
 ## Configuration
 
 ### YAML Configuration File

@@ -1,4 +1,14 @@
-# 0.5.0:
+# 0.6.0 (TBD)
+
+## Added
+- **Progress Visualization**: New `visualize` subcommand displays ASCII graphs of typing progress
+  - Shows min/mean/max WPM trends aggregated by day
+  - Default 30-day time window
+  - Pure Go implementation using asciigraph library
+  - Usage: `tt visualize [file]`
+  - Requires CSV data from previous tests run with `-csv` flag
+
+# 0.5.0
 
 Major configuration and output improvements:
 

@@ -8,6 +8,22 @@ tt - A terminal based typing test
 
 usage: tt \[OPTION\]... \[FILE\]
 
+tt visualize <FILE>
+
+# SUBCOMMANDS
+
+**visualize** <*FILE*>
+
+:   Display an ASCII graph of typing speed progress over time.
+    Reads data from CSV stats files generated with the `-csv` flag.
+    Shows min, mean, and max WPM aggregated by day over the last 30 days.
+
+    FILE is required. If FILE is a simple filename without directory separators,
+    it will be looked up in the default results directory (~/.local/share/tt/results/).
+    Otherwise, the path is used as-is (supports relative and absolute paths).
+
+    Examples: `quotes-stats.csv`, `words-stats.csv`
+
 # DESCRIPTION
 
   By default tt creates a test consisting of 50 randomly generated words from

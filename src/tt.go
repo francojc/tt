@@ -172,6 +172,12 @@ func createTyper(scr tcell.Screen, bold bool, themeName string) *typer {
 }
 
 var usage = `usage: tt [options] [file]
+       tt visualize <file>
+
+Subcommands
+    visualize <file>    Display typing speed progress graph.
+                        Simple filenames are looked up in the results directory.
+                        Examples: quotes-stats.csv, words-stats.csv
 
 Modes
     -words              Start word mode using the default word list from config
@@ -241,6 +247,28 @@ func saveMistakes(mistakes []mistake) {
 }
 
 func main() {
+	// Check for subcommands before processing flags
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "visualize", "viz":
+			// Require file argument
+			if len(os.Args) < 3 {
+				fmt.Fprintf(os.Stderr, "Error: file argument required\n\n")
+				fmt.Fprintf(os.Stderr, "Usage: tt visualize <file>\n")
+				fmt.Fprintf(os.Stderr, "       tt visualize quotes-stats.csv\n")
+				fmt.Fprintf(os.Stderr, "       tt visualize words-stats.csv\n\n")
+				fmt.Fprintf(os.Stderr, "Simple filenames are looked up in: %s\n", RESULTS_DIR)
+				os.Exit(1)
+			}
+			csvPath := os.Args[2]
+			if err := runVisualize(csvPath); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+			os.Exit(0)
+		}
+	}
+
 	var n int
 	var g int
 

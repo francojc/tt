@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/gdamore/tcell v1.4.0
+	github.com/guptarohit/asciigraph v0.7.3
 	github.com/mattn/go-isatty v0.0.14
 	gopkg.in/yaml.v3 v3.0.1
 )
