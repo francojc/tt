@@ -47,7 +47,7 @@ tt visualize <FILE>
 
 -quotes *QUOTEFILE*
 
-: Starts quote mode in which quotes are randomly drawn from the given file. The file should be JSON encoded and have the following form:
+: Starts quote mode in which quotes are randomly drawn from the given file. Use the special value `zen` to fetch quotes from the ZenQuotes API. When using `zen`, quotes are automatically cached to `~/.local/share/tt/quotes/zenlog.json` for offline use. If the API is unavailable, tt falls back to cached quotes or built-in defaults. The file should be JSON encoded and have the following form:
 
     [{"text": "foo", attribution: "bar"}]
 

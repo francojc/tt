@@ -11,6 +11,7 @@ var FILE_STATE_DB string
 var MISTAKE_DB string
 var RESULTS_DIR string
 var CONFIG_FILE string
+var ZENLOG_FILE string
 
 func init() {
 	var ok bool
@@ -31,6 +32,11 @@ func init() {
 
 	FILE_STATE_DB = filepath.Join(data, ".db")
 	MISTAKE_DB = filepath.Join(data, ".errors")
+
+	// Set up quotes directory for zenlog
+	quotesDir := filepath.Join(data, "quotes")
+	os.MkdirAll(quotesDir, 0700)
+	ZENLOG_FILE = filepath.Join(quotesDir, "zenlog.json")
 
 	// Set up config directory
 	var configDir string

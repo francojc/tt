@@ -158,3 +158,16 @@ csvdir: "~/Documents/typing-stats"
 ```
 
 The tilde (`~`) will be expanded to your home directory. Paths can be absolute or relative to your home.
+
+## ZenQuotes and Offline Mode
+
+When using `-quotefile zen`, tt fetches inspirational quotes from the [ZenQuotes API](https://zenquotes.io/).
+
+Quotes are automatically cached to `~/.local/share/tt/quotes/zenlog.json` for offline use. The cache stores unique quotes only (no duplicates).
+
+When the API is unavailable (network issues, rate limiting, etc.), tt falls back to:
+
+1. Previously cached quotes from zenlog
+2. Built-in default quotes if no cache exists
+
+This ensures you can always practice typing even without an internet connection.

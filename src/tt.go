@@ -185,6 +185,7 @@ Modes
     -wordfile WORDFILE  Override word list with specific file.
     -quotes             Start quote mode using the default quote file from config.
     -quotefile QUOTEFILE Override quote file. Use 'zen' for ZenQuotes API.
+                        When using 'zen', quotes are cached locally for offline use.
                         Quote files should be JSON encoded:
                         [{"text": "foo", "attribution": "bar"}]
 

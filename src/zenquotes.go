@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"math/rand"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -21,6 +22,55 @@ var cacheMaxSize = 10
 var fallbackQuote = segment{
 	Text:        "The only way to do great work is to love what you do.",
 	Attribution: "Steve Jobs",
+}
+
+// loadZenlog reads the zenlog file and returns stored quotes.
+// Returns empty slice if file doesn't exist or is invalid.
+func loadZenlog() []segment {
+	data, err := os.ReadFile(ZENLOG_FILE)
+	if err != nil {
+		return []segment{}
+	}
+
+	var quotes []segment
+	if err := json.Unmarshal(data, &quotes); err != nil {
+		return []segment{}
+	}
+
+	return quotes
+}
+
+// quoteExists checks if a quote with same text exists (deduplication).
+func quoteExists(quotes []segment, newQuote segment) bool {
+	for _, q := range quotes {
+		if q.Text == newQuote.Text {
+			return true
+		}
+	}
+	return false
+}
+
+// appendToZenlog adds a new quote if it doesn't already exist.
+// Returns true if appended, false if duplicate or error.
+func appendToZenlog(quote segment) bool {
+	quotes := loadZenlog()
+
+	if quoteExists(quotes, quote) {
+		return false
+	}
+
+	quotes = append(quotes, quote)
+
+	data, err := json.MarshalIndent(quotes, "", "  ")
+	if err != nil {
+		return false
+	}
+
+	if err := os.WriteFile(ZENLOG_FILE, data, 0644); err != nil {
+		return false
+	}
+
+	return true
 }
 
 // fetchZenQuote fetches a random quote from the ZenQuotes API
@@ -56,11 +106,14 @@ func fetchZenQuote() (segment, error) {
 		quoteCache = quoteCache[1:]
 	}
 
+	// Log to zenlog file (errors silently ignored)
+	appendToZenlog(result)
+
 	return result, nil
 }
 
 // getQuoteWithFallback attempts to fetch from API, falls back to cache,
-// then falls back to default quote
+// then falls back to zenlog file, then falls back to default quote
 func getQuoteWithFallback() segment {
 	// Try to fetch from API
 	quote, err := fetchZenQuote()
@@ -72,6 +125,13 @@ func getQuoteWithFallback() segment {
 	if len(quoteCache) > 0 {
 		idx := rand.Intn(len(quoteCache))
 		return quoteCache[idx]
+	}
+
+	// Fall back to zenlog file
+	zenlogQuotes := loadZenlog()
+	if len(zenlogQuotes) > 0 {
+		idx := rand.Intn(len(zenlogQuotes))
+		return zenlogQuotes[idx]
 	}
 
 	// Fall back to hardcoded quote
