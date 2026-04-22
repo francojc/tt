@@ -183,9 +183,10 @@ Modes
     -words              Start word mode using the default word list from config
                         (default: 1000en).
     -wordfile WORDFILE  Override word list with specific file.
-    -quotes             Start quote mode using the default quote file from config.
-    -quotefile QUOTEFILE Override quote file. Use 'zen' for ZenQuotes API.
-                        When using 'zen', quotes are cached locally for offline use.
+    -quotes             Start quote mode using the ZenQuotes API (cached locally
+                        for offline fallback).
+    -quotefile QUOTEFILE Override quote file. Use 'zen' for locally logged quotes
+                        from previous ZenQuotes API sessions.
                         Quote files should be JSON encoded:
                         [{"text": "foo", "attribution": "bar"}]
 
@@ -388,7 +389,7 @@ func main() {
 			}
 		}
 
-		// Special case: 'zen' is API-based, not embedded
+		// Special case: 'zen' uses local zenlog, not embedded
 		if listFlag == "quotes" {
 			fmt.Println("zen")
 		}
@@ -426,12 +427,17 @@ func main() {
 		currentTestType = "words"
 		currentTestFile = wordFile
 	case quotesExplicit:
-		// User explicitly provided -quotes flag
-		if quoteFile == "zen" {
+		// User explicitly provided -quotes or -quotefile flag
+		switch quoteFile {
+		case "": // bare -quotes: use API with zenlog fallback
 			testFn = generateZenQuotesTest()
 			currentTestType = "quotes"
+			currentTestFile = "zen-api"
+		case "zen": // -quotefile zen: use local zenlog only
+			testFn = generateZenlogTest()
+			currentTestType = "quotes"
 			currentTestFile = "zen"
-		} else {
+		default:
 			testFn = generateQuoteTest(quoteFile)
 			currentTestType = "quotes"
 			currentTestFile = quoteFile
@@ -453,11 +459,12 @@ func main() {
 	default:
 		// Use config defaults: check if quotes are configured
 		if quoteFile != "" {
-			if quoteFile == "zen" {
-				testFn = generateZenQuotesTest()
+			switch quoteFile {
+			case "zen": // config: quotes: zen → local zenlog
+				testFn = generateZenlogTest()
 				currentTestType = "quotes"
 				currentTestFile = "zen"
-			} else {
+			default:
 				testFn = generateQuoteTest(quoteFile)
 				currentTestType = "quotes"
 				currentTestFile = quoteFile

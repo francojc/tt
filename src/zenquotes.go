@@ -138,10 +138,23 @@ func getQuoteWithFallback() segment {
 	return fallbackQuote
 }
 
-// generateZenQuotesTest returns a function that generates a new quote
-// segment each time it's called
+// generateZenQuotesTest returns a function that fetches from the API
+// (with zenlog fallback) each time it's called.
 func generateZenQuotesTest() func() []segment {
 	return func() []segment {
 		return []segment{getQuoteWithFallback()}
+	}
+}
+
+// generateZenlogTest returns a function that picks a random quote from
+// the local zenlog file (previously cached API quotes). Dies if empty.
+func generateZenlogTest() func() []segment {
+	quotes := loadZenlog()
+	if len(quotes) == 0 {
+		die("No locally logged quotes found. Run tt -quotes first to cache quotes from the ZenQuotes API.")
+	}
+	return func() []segment {
+		idx := rand.Intn(len(quotes))
+		return []segment{quotes[idx]}
 	}
 }
